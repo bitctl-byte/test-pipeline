@@ -4,7 +4,7 @@ stages:
 
 variables:
   GIT_STRATEGY: clone
-  APP_NAME: login_demo
+  APP_NAME: latihan_app
   IMAGE_TAG: 192.168.1.201/login/$APP_NAME:$CI_COMMIT_SHORT_SHA
   GITLAB_TOKEN: $GITLAB_TOKEN # This will be your PAT stored in GitLab variables
 
@@ -18,7 +18,7 @@ build_image:
     - docker build -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
   tags:
-    - bisa
+    - runner_latihan
 
 update_helm_chart:
   stage: update_helm_chart
@@ -30,16 +30,16 @@ update_helm_chart:
     # Set the credential helper to store credentials
     - git config --global credential.helper store
     # Add the GitLab token for HTTP authentication
-    - echo "http://gitlab-ci-token:$GITLAB_TOKEN@192.168.1.254" > ~/.git-credentials # Use GitLab CI token or PAT
-    - git clone http://192.168.1.254/root/manifest-repo.git
+    - echo "http://gitlab-ci-token:$GITLAB_TOKEN@192.168.1.227" > ~/.git-credentials # Use GitLab CI token or PAT
+    - git clone http://192.168.1.227/testing_ikmal/manifest.git
     - cd manifest-repo
     - ls -latr
   script:
     # Update Image TAG in the values.yaml file
-    - sed -i "s/login_demo:.*/login_demo:${CI_COMMIT_SHORT_SHA}/g" test-login-app/values.yaml
-    - git add test-login-app/values.yaml
+    - sed -i "s/latihan_app:.*/latihan_app:${CI_COMMIT_SHORT_SHA}/g" latihan/values.yaml
+    - git add latihan/values.yaml
     - git commit -am "Update Image"
     # Push the changes to the repository
     - git push
   tags:
-    - bisa
+    - runner_latihan

@@ -2,18 +2,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: logindep
-  name: {{ .Release.Name }}-logindep
-  namespace: app
+    app: latihandepl
+  name: {{ .Release.Name }}-latihandepl
+  namespace: latihan
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: logindep
+      app: latihandepl
   template:
     metadata:
       labels:
-        app: logindep
+        app: latihandepl
     spec:
       containers:
       - image: {{ .Values.image.repository }} 
