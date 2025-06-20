@@ -1,3 +1,3 @@
-FROM nginx:latest 
+FROM nginx:latest
 COPY source_code/. /usr/share/nginx/html
  
