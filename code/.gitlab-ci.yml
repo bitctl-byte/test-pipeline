@@ -1,0 +1,45 @@
+stages:
+  - build
+  - update_helm_chart
+
+variables:
+  GIT_STRATEGY: clone
+  APP_NAME: login_demo
+  IMAGE_TAG: 192.168.1.201/login/$APP_NAME:$CI_COMMIT_SHORT_SHA
+  GITLAB_TOKEN: $GITLAB_TOKEN # This will be your PAT stored in GitLab variables
+
+build_image:
+  image: docker
+  stage: build
+  services:
+    - name: docker:dind
+  script:
+    - docker login http://192.168.1.201 -u admin -p Harbor12345
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+  tags:
+    - bisa
+
+update_helm_chart:
+  stage: update_helm_chart
+  image: ubuntu:22.04
+  before_script:
+    # Git configuration
+    - git config --global user.email "gitlab-ci@gmail.com"
+    - git config --global user.name "gitlab-ci"
+    # Set the credential helper to store credentials
+    - git config --global credential.helper store
+    # Add the GitLab token for HTTP authentication
+    - echo "http://gitlab-ci-token:$GITLAB_TOKEN@192.168.1.254" > ~/.git-credentials # Use GitLab CI token or PAT
+    - git clone http://192.168.1.254/root/manifest-repo.git
+    - cd manifest-repo
+    - ls -latr
+  script:
+    # Update Image TAG in the values.yaml file
+    - sed -i "s/login_demo:.*/login_demo:${CI_COMMIT_SHORT_SHA}/g" test-login-app/values.yaml
+    - git add test-login-app/values.yaml
+    - git commit -am "Update Image"
+    # Push the changes to the repository
+    - git push
+  tags:
+    - bisa
